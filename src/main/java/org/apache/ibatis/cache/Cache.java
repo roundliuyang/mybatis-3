@@ -18,6 +18,7 @@ package org.apache.ibatis.cache;
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
+ * 缓存容器接口。注意，它是一个容器，有点类似 HashMap ，可以往其中添加各种缓存
  * SPI for cache providers.
  *
  * One instance of cache will be created for each namespace.
@@ -49,16 +50,19 @@ public interface Cache {
   /**
    * @param key Can be any object but usually it is a {@link CacheKey}
    * @param value The result of a select.
+   * 添加指定键的值
    */
   void putObject(Object key, Object value);
 
   /**
+   * 获得指定键的值
    * @param key The key
    * @return The object stored in the cache.
    */
   Object getObject(Object key);
 
   /**
+   * 移除指定键的值
    * As of 3.3.0 this method is only called during a rollback
    * for any previous value that was missing in the cache.
    * This lets any blocking cache to release the lock that
@@ -76,11 +80,13 @@ public interface Cache {
 
   /**
    * Clears this cache instance
+   * 清空缓存
    */
   void clear();
 
   /**
    * Optional. This method is not called by the core.
+   * 获得容器中缓存的数量
    *
    * @return The number of elements stored in the cache (not its capacity).
    */

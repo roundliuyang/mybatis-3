@@ -23,6 +23,8 @@ import org.apache.ibatis.reflection.ArrayUtil;
 
 /**
  * @author Clinton Begin
+ * 实现 Cloneable、Serializable 接口，缓存键
+ * 因为 MyBatis 中的缓存键不是一个简单的 String ，而是通过多个对象组成。所以 CacheKey 可以理解成将多个对象放在一起，计算其缓存键。
  */
 public class CacheKey implements Cloneable, Serializable {
 
