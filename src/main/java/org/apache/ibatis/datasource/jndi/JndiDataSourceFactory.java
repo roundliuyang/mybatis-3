@@ -28,6 +28,7 @@ import org.apache.ibatis.datasource.DataSourceFactory;
 
 /**
  * @author Clinton Begin
+ * 实现 DataSourceFactory 接口，基于 JNDI 的 DataSourceFactory 实现类
  */
 public class JndiDataSourceFactory implements DataSourceFactory {
 
