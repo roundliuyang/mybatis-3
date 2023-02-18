@@ -21,6 +21,7 @@ import org.apache.ibatis.reflection.Reflector;
 
 /**
  * @author Clinton Begin
+ * 实现 Invoker 接口，获得 Field 调用者
  */
 public class GetFieldInvoker implements Invoker {
   private final Field field;

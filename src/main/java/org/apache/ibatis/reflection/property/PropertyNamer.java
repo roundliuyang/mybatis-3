@@ -21,6 +21,7 @@ import org.apache.ibatis.reflection.ReflectionException;
 
 /**
  * @author Clinton Begin
+ * 属性名相关的工具类方法
  */
 public final class PropertyNamer {
 
