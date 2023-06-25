@@ -225,9 +225,10 @@ public class XPathParser {
 
   public List<XNode> evalNodes(Object root, String expression) {
     List<XNode> xnodes = new ArrayList<>();
-    // <1> 获得 Node 数组
+    //  获得 Node 数组
     NodeList nodes = (NodeList) evaluate(expression, root, XPathConstants.NODESET);
     for (int i = 0; i < nodes.getLength(); i++) {
+      // 封装成 XNode 数组
       xnodes.add(new XNode(this, nodes.item(i), variables));
     }
     return xnodes;
