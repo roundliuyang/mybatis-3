@@ -40,12 +40,20 @@ public class MetaClass {
     this.reflector = reflectorFactory.findForClass(type);
   }
 
+  /**
+   * 静态方法，创建指定类的 MetaClass 对象
+   */
   public static MetaClass forClass(Class<?> type, ReflectorFactory reflectorFactory) {
     return new MetaClass(type, reflectorFactory);
   }
 
+  /**
+   * 创建类的指定属性的类的 MetaClass 对象
+   */
   public MetaClass metaClassForProperty(String name) {
+    // 获得属性的类
     Class<?> propType = reflector.getGetterType(name);
+    // 创建 MetaClass 对象
     return MetaClass.forClass(propType, reflectorFactory);
   }
 
@@ -54,10 +62,15 @@ public class MetaClass {
     return prop.length() > 0 ? prop.toString() : null;
   }
 
+  /**
+   * 根据表达式，获得属性
+   */
   public String findProperty(String name, boolean useCamelCaseMapping) {
+    // 下划线转驼峰
     if (useCamelCaseMapping) {
       name = name.replace("_", "");
     }
+    // 获得属性
     return findProperty(name);
   }
 
