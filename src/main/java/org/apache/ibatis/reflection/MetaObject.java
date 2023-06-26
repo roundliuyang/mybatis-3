@@ -33,7 +33,13 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
  */
 public class MetaObject {
 
+  /**
+   * 原始 Object 对象
+   */
   private final Object originalObject;
+  /**
+   * 封装过的 Object 对象
+   */
   private final ObjectWrapper objectWrapper;
   private final ObjectFactory objectFactory;
   private final ObjectWrapperFactory objectWrapperFactory;
@@ -48,12 +54,16 @@ public class MetaObject {
     if (object instanceof ObjectWrapper) {
       this.objectWrapper = (ObjectWrapper) object;
     } else if (objectWrapperFactory.hasWrapperFor(object)) {
+      // 创建 ObjectWrapper 对象
       this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
     } else if (object instanceof Map) {
+      // 创建 MapWrapper 对象
       this.objectWrapper = new MapWrapper(this, (Map) object);
     } else if (object instanceof Collection) {
+      // 创建 CollectionWrapper 对象
       this.objectWrapper = new CollectionWrapper(this, (Collection) object);
     } else {
+      // 创建 BeanWrapper 对象
       this.objectWrapper = new BeanWrapper(this, object);
     }
   }

@@ -27,35 +27,57 @@ import org.apache.ibatis.reflection.invoker.Invoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 普通对象的 ObjectWrapper 实现类，例如 User、Order 这样的 POJO 类
  * @author Clinton Begin
  */
 public class BeanWrapper extends BaseWrapper {
 
+  /**
+   * 普通对象
+   */
   private final Object object;
   private final MetaClass metaClass;
 
   public BeanWrapper(MetaObject metaObject, Object object) {
     super(metaObject);
     this.object = object;
+    // 创建 MetaClass 对象
     this.metaClass = MetaClass.forClass(object.getClass(), metaObject.getReflectorFactory());
   }
 
+  /**
+   * 获得指定属性的值
+   * @param prop PropertyTokenizer 对象，相当于键
+   */
   @Override
   public Object get(PropertyTokenizer prop) {
+    // 获得集合类型的属性的指定位置的值
     if (prop.getIndex() != null) {
+      // 获得集合类型的指定属性
       Object collection = resolveCollection(prop, object);
+      // 获得指定位置的值
       return getCollectionValue(prop, collection);
+      // 获得属性的值
     } else {
       return getBeanProperty(prop, object);
     }
   }
 
+  /**
+   * 设置指定属性的值
+   * @param prop PropertyTokenizer 对象，相当于键
+   * @param value 值
+   */
   @Override
   public void set(PropertyTokenizer prop, Object value) {
+    // 设置集合类型的属性的指定位置的值
     if (prop.getIndex() != null) {
+      // 获得集合类型的属性
       Object collection = resolveCollection(prop, object);
+      // 设置指定位置的值
       setCollectionValue(prop, collection, value);
     } else {
+      // 设置属性的值
       setBeanProperty(prop, object, value);
     }
   }
@@ -157,6 +179,9 @@ public class BeanWrapper extends BaseWrapper {
     return metaValue;
   }
 
+  /**
+   * 通过调用 Invoker 方法，获得属性的值。
+   */
   private Object getBeanProperty(PropertyTokenizer prop, Object object) {
     try {
       Invoker method = metaClass.getGetInvoker(prop.getName());
