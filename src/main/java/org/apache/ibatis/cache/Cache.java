@@ -19,6 +19,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 /**
  * 缓存容器接口。注意，它是一个容器，有点类似 HashMap ，可以往其中添加各种缓存
+ *
+ * Cache 基于不同的缓存过期策略、特性，有不同的实现类。下面，我们来逐个来看。可以 [组合多种 Cache] ，实现特性的组合。
+ * 这种方式，就是常见的设计模式，《【设计模式读书笔记】装饰者模式》 。
+ *
  * SPI for cache providers.
  *
  * One instance of cache will be created for each namespace.

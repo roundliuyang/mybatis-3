@@ -28,6 +28,9 @@ import org.apache.ibatis.cache.CacheException;
  * Simple blocking decorator
  * 阻塞的 Cache 实现类
  *
+ * 这里的阻塞比较特殊，当线程去获取缓存值时，如果不存在，则会阻塞后续的其他线程去获取该缓存。
+ * 为什么这么有这样的设计呢？因为当线程 A 在获取不到缓存值时，一般会去设置对应的缓存值，这样就避免其他也需要该缓存的线程 B、C 等，重复添加缓存。
+ *
  * Simple and inefficient version of EhCache's BlockingCache decorator.
  * It sets a lock over a cache key when the element is not found in cache.
  * This way, other threads will wait until this element is filled instead of hitting the database.
@@ -37,8 +40,17 @@ import org.apache.ibatis.cache.CacheException;
  */
 public class BlockingCache implements Cache {
 
+  /**
+   * 阻塞等待超时时间
+   */
   private long timeout;
+  /**
+   * 装饰的 Cache 对象
+   */
   private final Cache delegate;
+  /**
+   * 缓存键与 ReentrantLock 对象的映射
+   */
   private final ConcurrentHashMap<Object, ReentrantLock> locks;
 
   public BlockingCache(Cache delegate) {
@@ -59,6 +71,7 @@ public class BlockingCache implements Cache {
   @Override
   public void putObject(Object key, Object value) {
     try {
+      // 添加缓存
       delegate.putObject(key, value);
     } finally {
       releaseLock(key);
@@ -67,9 +80,12 @@ public class BlockingCache implements Cache {
 
   @Override
   public Object getObject(Object key) {
+    // 获得锁
     acquireLock(key);
+    // 获得缓存值
     Object value = delegate.getObject(key);
     if (value != null) {
+      // 释放锁
       releaseLock(key);
     }
     return value;
@@ -78,6 +94,7 @@ public class BlockingCache implements Cache {
   @Override
   public Object removeObject(Object key) {
     // despite of its name, this method is called only to release locks
+    // 释放锁
     releaseLock(key);
     return null;
   }
@@ -92,12 +109,20 @@ public class BlockingCache implements Cache {
     return null;
   }
 
+  /**
+   * 获得 ReentrantLock 对象。如果不存在，进行添加
+   *
+   * @param key 缓存键
+   * @return ReentrantLock 对象
+   */
   private ReentrantLock getLockForKey(Object key) {
     return locks.computeIfAbsent(key, k -> new ReentrantLock());
   }
 
   private void acquireLock(Object key) {
+    // 获得 ReentrantLock 对象
     Lock lock = getLockForKey(key);
+    // 获得锁，直到超时
     if (timeout > 0) {
       try {
         boolean acquired = lock.tryLock(timeout, TimeUnit.MILLISECONDS);
@@ -108,12 +133,15 @@ public class BlockingCache implements Cache {
         throw new CacheException("Got interrupted while trying to acquire lock for key " + key, e);
       }
     } else {
+      // 释放锁
       lock.lock();
     }
   }
 
   private void releaseLock(Object key) {
+    // 获得 ReentrantLock 对象
     ReentrantLock lock = locks.get(key);
+    // 如果当前线程持有，进行释放
     if (lock.isHeldByCurrentThread()) {
       lock.unlock();
     }
