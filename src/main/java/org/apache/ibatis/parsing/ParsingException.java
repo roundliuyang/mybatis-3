@@ -19,6 +19,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 
 /**
  * @author Clinton
+ *
  * 解析异常
  */
 public class ParsingException extends PersistenceException {
