@@ -29,6 +29,10 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 映射的语句，每个 <select />、<insert />、<update />、<delete /> 对应一个 MappedStatement 对象
+ * 另外，比较特殊的是，<selectKey /> 解析后，也会对应一个 MappedStatement 对象。
+ * 在另外，MappedStatement 有一个非常重要的方法 #getBoundSql(Object parameterObject) 方法，获得 BoundSql 对象
+ *
  * @author Clinton Begin
  */
 public final class MappedStatement {
@@ -289,14 +293,21 @@ public final class MappedStatement {
     return resultSets;
   }
 
+  /**
+   * 获得 BoundSql 对象
+   */
   public BoundSql getBoundSql(Object parameterObject) {
+    // 获得 BoundSql 对象
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+    // 忽略，因为 <parameterMap /> 已经废弃，参见 http://www.mybatis.org/mybatis-3/zh/sqlmap-xml.html 文档
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     if (parameterMappings == null || parameterMappings.isEmpty()) {
       boundSql = new BoundSql(configuration, boundSql.getSql(), parameterMap.getParameterMappings(), parameterObject);
     }
 
     // check for nested result maps in parameter mappings (issue #30)
+    // 判断传入的参数中，是否有内嵌的结果 ResultMap 。如果有，则修改 hasNestedResultMaps 为 true
+    // 存储过程相关，暂时无视
     for (ParameterMapping pm : boundSql.getParameterMappings()) {
       String rmId = pm.getResultMapId();
       if (rmId != null) {
