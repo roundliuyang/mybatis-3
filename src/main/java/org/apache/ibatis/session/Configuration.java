@@ -115,6 +115,9 @@ public class Configuration {
 
   protected String logPrefix;
   protected Class <? extends Log> logImpl;
+  /**
+   * VFS 实现类
+   */
   protected Class <? extends VFS> vfsImpl;
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
@@ -146,6 +149,9 @@ public class Configuration {
   protected Class<?> configurationFactory;
 
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  /**
+   * 拦截器链
+   */
   protected final InterceptorChain interceptorChain = new InterceptorChain();
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
@@ -237,8 +243,10 @@ public class Configuration {
   }
 
   public void setVfsImpl(Class<? extends VFS> vfsImpl) {
+    // 设置 vfsImpl 属性
     if (vfsImpl != null) {
       this.vfsImpl = vfsImpl;
+      // 添加到 VFS 中的自定义 VFS 类的集合
       VFS.addImplClass(this.vfsImpl);
     }
   }
@@ -741,7 +749,11 @@ public class Configuration {
     mapperRegistry.addMappers(packageName, superType);
   }
 
+  /**
+   * 扫描该包下的所有 Mapper 接口
+   */
   public void addMappers(String packageName) {
+    // 扫描该包下所有的 Mapper 接口，并添加到 mapperRegistry 中
     mapperRegistry.addMappers(packageName);
   }
 
