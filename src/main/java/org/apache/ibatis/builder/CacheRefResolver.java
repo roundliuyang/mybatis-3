@@ -18,10 +18,15 @@ package org.apache.ibatis.builder;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * Cache 指向解析器
+ *
  * @author Clinton Begin
  */
 public class CacheRefResolver {
   private final MapperBuilderAssistant assistant;
+  /**
+   * Cache 指向解析器
+   */
   private final String cacheRefNamespace;
 
   public CacheRefResolver(MapperBuilderAssistant assistant, String cacheRefNamespace) {
@@ -30,6 +35,7 @@ public class CacheRefResolver {
   }
 
   public Cache resolveCacheRef() {
+    // 会调用 MapperBuilderAssistant#useCacheRef(String namespace) 方法，获得指向的 Cache 对象
     return assistant.useCacheRef(cacheRefNamespace);
   }
 }
