@@ -45,6 +45,7 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * 提供骨架方法，从而使子类只要实现指定的几个抽象方法即可
  * @author Clinton Begin
  */
 public abstract class BaseExecutor implements Executor {
