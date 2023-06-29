@@ -119,6 +119,9 @@ public class Configuration {
    * VFS 实现类
    */
   protected Class <? extends VFS> vfsImpl;
+  /**
+   * 本地缓存范围
+   */
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
   protected Set<String> lazyLoadTriggerMethods = new HashSet<>(Arrays.asList("equals", "clone", "hashCode", "toString"));
