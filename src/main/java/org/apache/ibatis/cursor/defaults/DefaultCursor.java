@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
+ * 默认 Cursor 实现类
+ *
  * This is the default implementation of a MyBatis Cursor.
  * This implementation is not thread safe.
  *
@@ -41,14 +43,35 @@ public class DefaultCursor<T> implements Cursor<T> {
   private final ResultMap resultMap;
   private final ResultSetWrapper rsw;
   private final RowBounds rowBounds;
+
+  /**
+   * ObjectWrapperResultHandler 对象
+   */
   private final ObjectWrapperResultHandler<T> objectWrapperResultHandler = new ObjectWrapperResultHandler<>();
 
+  /**
+   * CursorIterator 对象，游标迭代器。
+   */
   private final CursorIterator cursorIterator = new CursorIterator();
+  /**
+   * 是否开始迭代
+   *
+   * {@link #iterator()}
+   */
   private boolean iteratorRetrieved;
 
+  /**
+   * 游标状态
+   */
   private CursorStatus status = CursorStatus.CREATED;
+  /**
+   * 已完成映射的行数
+   */
   private int indexWithRowBound = -1;
 
+  /**
+   * 是 DefaultCursor 的内部枚举类
+   */
   private enum CursorStatus {
 
     /**
@@ -61,10 +84,12 @@ public class DefaultCursor<T> implements Cursor<T> {
     OPEN,
     /**
      * A closed cursor, not fully consumed
+     * * 已关闭，并未完全消费
      */
     CLOSED,
     /**
      * A fully consumed cursor, a consumed cursor is always closed
+     * 已关闭，并且完全消费
      */
     CONSUMED
   }
@@ -93,12 +118,14 @@ public class DefaultCursor<T> implements Cursor<T> {
 
   @Override
   public Iterator<T> iterator() {
+    // 如果已经获取，则抛出 IllegalStateException 异常
     if (iteratorRetrieved) {
       throw new IllegalStateException("Cannot open more than one iterator on a Cursor");
     }
     if (isClosed()) {
       throw new IllegalStateException("A Cursor is already closed.");
     }
+    // 标记已经获取
     iteratorRetrieved = true;
     return cursorIterator;
   }
@@ -167,11 +194,16 @@ public class DefaultCursor<T> implements Cursor<T> {
 
   private static class ObjectWrapperResultHandler<T> implements ResultHandler<T> {
 
+    /**
+     * 结果对象
+     */
     private T result;
 
     @Override
     public void handleResult(ResultContext<? extends T> context) {
+      // 设置结果对象
       this.result = context.getResultObject();
+      // 暂停
       context.stop();
     }
   }
