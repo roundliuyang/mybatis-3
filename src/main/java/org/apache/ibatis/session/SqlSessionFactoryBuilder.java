@@ -26,6 +26,7 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
+ * 是 SqlSessionFactory 的构建器
  * Builds {@link SqlSession} instances.
  *
  * @author Clinton Begin
