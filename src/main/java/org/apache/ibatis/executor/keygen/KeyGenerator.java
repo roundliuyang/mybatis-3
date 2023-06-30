@@ -21,12 +21,16 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 
 /**
+ * 主键生成器接口
+ * 可在 SQL 执行之前或之后，进行处理主键的生成。
  * @author Clinton Begin
  */
 public interface KeyGenerator {
 
+  // SQL 执行前
   void processBefore(Executor executor, MappedStatement ms, Statement stmt, Object parameter);
 
+  // SQL 执行后
   void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter);
 
 }
