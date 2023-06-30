@@ -42,20 +42,30 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
+ *  ResultLoader 的映射。该映射，最终创建代理对象时，会作为参数传入代理
+ *
  * @author Clinton Begin
  * @author Franta Mejta
  */
 public class ResultLoaderMap {
 
+  /**
+   * LoadPair 的映射
+   */
   private final Map<String, LoadPair> loaderMap = new HashMap<>();
 
+  /**
+   * 添加到 loaderMap 中
+   */
   public void addLoader(String property, MetaObject metaResultObject, ResultLoader resultLoader) {
     String upperFirst = getUppercaseFirstProperty(property);
+    // 已存在，则抛出 ExecutorException 异常
     if (!upperFirst.equalsIgnoreCase(property) && loaderMap.containsKey(upperFirst)) {
       throw new ExecutorException("Nested lazy loaded result property '" + property +
               "' for query id '" + resultLoader.mappedStatement.getId() +
               " already exists in the result map. The leftmost property of all lazy loaded properties must be unique within a result map.");
     }
+    // 创建 LoadPair 对象，添加到 loaderMap 中
     loaderMap.put(upperFirst, new LoadPair(property, metaResultObject, resultLoader));
   }
 
@@ -96,6 +106,12 @@ public class ResultLoaderMap {
     }
   }
 
+  /**
+   * 使用 . 分隔属性，并获得首个字符串，并大写
+   *
+   * @param property 属性
+   * @return 字符串 + 大写
+   */
   private static String getUppercaseFirstProperty(String property) {
     String[] parts = property.split("\\.");
     return parts[0].toUpperCase(Locale.ENGLISH);
