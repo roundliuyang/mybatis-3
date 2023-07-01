@@ -95,6 +95,8 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * MyBatis 配置对象
+ *
  * @author Clinton Begin
  */
 public class Configuration {
@@ -160,6 +162,11 @@ public class Configuration {
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
+  /**
+   * MappedStatement 映射
+   *
+   * KEY：`${namespace}.${id}`
+   */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
@@ -755,9 +762,11 @@ public class Configuration {
   }
 
   public MappedStatement getMappedStatement(String id, boolean validateIncompleteStatements) {
+    // 校验，保证所有 MappedStatement 已经构造完毕
     if (validateIncompleteStatements) {
       buildAllStatements();
     }
+    // 获取 MappedStatement 对象
     return mappedStatements.get(id);
   }
 
@@ -815,13 +824,13 @@ public class Configuration {
    */
   protected void buildAllStatements() {
     parsePendingResultMaps();
-    if (!incompleteCacheRefs.isEmpty()) {
+    if (!incompleteCacheRefs.isEmpty()) {              // 保证 incompleteCacheRefs 被解析完
       synchronized (incompleteCacheRefs) {
         incompleteCacheRefs.removeIf(x -> x.resolveCacheRef() != null);
       }
     }
     if (!incompleteStatements.isEmpty()) {
-      synchronized (incompleteStatements) {
+      synchronized (incompleteStatements) {            // 保证 incompleteStatements 被解析完
         incompleteStatements.removeIf(x -> {
           x.parseStatementNode();
           return true;
@@ -829,7 +838,7 @@ public class Configuration {
       }
     }
     if (!incompleteMethods.isEmpty()) {
-      synchronized (incompleteMethods) {
+      synchronized (incompleteMethods) {               // 保证 incompleteMethods 被解析完
         incompleteMethods.removeIf(x -> {
           x.resolve();
           return true;
