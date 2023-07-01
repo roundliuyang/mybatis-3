@@ -42,10 +42,18 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 public class CacheBuilder {
   private final String id;
   private Class<? extends Cache> implementation;
+  /**
+   * Cache 装饰类集合
+   *
+   * 例如，负责过期的 Cache 实现类
+   */
   private final List<Class<? extends Cache>> decorators;
   private Integer size;
   private Long clearInterval;
   private boolean readWrite;
+  /**
+   * Properties 对象
+   */
   private Properties properties;
   private boolean blocking;
 
@@ -96,12 +104,18 @@ public class CacheBuilder {
     Cache cache = newBaseCacheInstance(implementation, id);
     setCacheProperties(cache);
     // issue #352, do not apply decorators to custom caches
+    // 如果是 PerpetualCache 类，则进行包装
     if (PerpetualCache.class.equals(cache.getClass())) {
+      // 遍历 decorators ，进行包装
       for (Class<? extends Cache> decorator : decorators) {
+        // 包装 Cache 对象
         cache = newCacheDecoratorInstance(decorator, cache);
+        // 设置属性
         setCacheProperties(cache);
       }
+      // 执行标准化的 Cache 包装
       cache = setStandardDecorators(cache);
+      // 如果是自定义的 Cache 类，则包装成 LoggingCache 对象，因为要统计。
     } else if (!LoggingCache.class.isAssignableFrom(cache.getClass())) {
       cache = new LoggingCache(cache);
     }
