@@ -40,12 +40,18 @@ public class MapperRegistry {
     this.config = config;
   }
 
+  /**
+   * 获得 Mapper Proxy 对象
+   */
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    // 获得 MapperProxyFactory 对象
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+    // 不存在，则抛出 BindingException 异常
     if (mapperProxyFactory == null) {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
+    // 创建 Mapper Proxy 对象
     try {
       return mapperProxyFactory.newInstance(sqlSession);
     } catch (Exception e) {
