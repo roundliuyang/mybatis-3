@@ -611,21 +611,27 @@ public class Configuration {
     return newExecutor(transaction, defaultExecutorType);
   }
 
+  /**
+   * 创建一个Executor
+   * @param transaction 事务对象
+   * @param executorType Executor类型
+   * @return Executor
+   */
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
     executorType = executorType == null ? defaultExecutorType : executorType;
     executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
     Executor executor;
-    if (ExecutorType.BATCH == executorType) {
+    if (ExecutorType.BATCH == executorType) {            //BatchExecutor
       executor = new BatchExecutor(this, transaction);
-    } else if (ExecutorType.REUSE == executorType) {
+    } else if (ExecutorType.REUSE == executorType) {    //ReuseExecutor
       executor = new ReuseExecutor(this, transaction);
-    } else {
+    } else {        //SimpleExecutor
       executor = new SimpleExecutor(this, transaction);
     }
-    if (cacheEnabled) {
+    if (cacheEnabled) {    //如果开启了缓存, 使用CachingExecutor
       executor = new CachingExecutor(executor);
     }
-    executor = (Executor) interceptorChain.pluginAll(executor);
+    executor = (Executor) interceptorChain.pluginAll(executor);       //通过调用pluginAll()方法创建Executor的代理对象
     return executor;
   }
 

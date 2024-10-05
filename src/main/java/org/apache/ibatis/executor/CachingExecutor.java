@@ -102,21 +102,32 @@ public class CachingExecutor implements Executor {
     return delegate.queryCursor(ms, parameter, rowBounds);
   }
 
+  /**
+   * 查询操作
+   * @param ms MappedStatement
+   * @param parameterObject 参数
+   * @param rowBounds 绑定的参数
+   * @param resultHandler 结果集处理器
+   * @param key 缓存的Key
+   * @param boundSql 绑定的SQL
+   * @param <E> 类型
+   * @return 集合
+   * @throws SQLException 异常
+   */
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
-    Cache cache = ms.getCache();
-    if (cache != null) {
-      //  如果需要清空缓存，则进行清空
+    Cache cache = ms.getCache();   //获取查询语句所在的命名空间对应的二级缓存
+    if (cache != null) {   //存在二级缓存
+      // 根据<select>节点的配置, 决定是否需要清空二级缓存
       flushCacheIfRequired(ms);
-      if (ms.isUseCache() && resultHandler == null) {
-        // 暂时忽略，存储过程相关
+      if (ms.isUseCache() && resultHandler == null) {   //检测SQL节点中是否使用了resultHandler配置
+        //二级缓存不能保存输出类型的参数, 如果查询操作调用了包含输出参数的存储过程, 则报错
         ensureNoOutParams(ms, boundSql);
         // 从二级缓存中，获取结果
         @SuppressWarnings("unchecked")
         List<E> list = (List<E>) tcm.getObject(cache, key);
-        if (list == null) {
-          // 如果不存在，则从数据库中查询
+        if (list == null) {    //二级缓存没有相应的结果, 则调用底层的Executor对象的query对象查询
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
           // 缓存结果到二级缓存中
           tcm.putObject(cache, key, list); // issue #578 and #116
@@ -181,6 +192,10 @@ public class CachingExecutor implements Executor {
     delegate.clearLocalCache();
   }
 
+  /**
+   * 刷新二级缓存
+   * @param ms MappedStatement
+   */
   private void flushCacheIfRequired(MappedStatement ms) {
     Cache cache = ms.getCache();
     if (cache != null && ms.isFlushCacheRequired()) {
